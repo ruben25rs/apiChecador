@@ -24,6 +24,8 @@ class CreateDocentesTable extends Migration
             $table->longText('descriptor')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('plantel_id');
+            $table->foreign('plantel_id')->references('id')->on('planteles');
             $table->timestamps();
         });
     }

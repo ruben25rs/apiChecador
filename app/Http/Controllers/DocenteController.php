@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Docente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class DocenteController extends Controller
 {
@@ -37,13 +39,27 @@ class DocenteController extends Controller
     public function store(Request $request)
     {
 
+        $validator = Validator::make($request->all(), [
+            'registros.email'       => 'required|email|unique:users,email'
+        ], [
+            'registros.email.required'  => 'El correo electrónico es obligatorio.',
+            'registros.email.unique'    => 'Este correo ya está registrado.'
+        ]);
 
-       
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+
 
         $user = User::create([
-            'usuario' => $request->registros['usuario'],
+            'usuario' => $request->registros['nombre'],
             'email' => $request->registros['email'],
-            'password' => $request->registros['password'],
+            'password' => Hash::make($request->registros['password']),
+            'rol_id' => $request->registros['rol_id'],
         ]);
         
         $docente = Docente::create([
@@ -51,14 +67,15 @@ class DocenteController extends Controller
             'apellidop'=> 'rub',
             'apellidom'=> 'ruiz',
             'direccion'=> 'huaya',
-            'email'=> 'rub@gmail.com',
-            'telefono'=> '951763267237',
+            'email'=> $request->registros['email'],
+            'telefono'=> '00000',
             'descriptor'=>json_encode($request->registros['descriptor']),
-            'user_id'=>$user->id
+            'user_id'=>$user->id,
+            'plantel_id'=>$request->registros['plantel_id'],
         ]);
 
 
-        return response()->json($docente);
+        return response()->json($request);
     }
 
     /**
@@ -71,7 +88,7 @@ class DocenteController extends Controller
     {
         //
 
-        $user  = User::where('usuario', $user)->first();
+        $user  = User::where('email', $user)->first();
 
         $docente = Docente::where('user_id', $user->id)->first();
 

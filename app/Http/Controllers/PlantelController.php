@@ -44,9 +44,12 @@ class PlantelController extends Controller
      * @param  \App\Models\Plantel  $plantel
      * @return \Illuminate\Http\Response
      */
-    public function show(Plantel $plantel)
+    public function getPlanteles()
     {
         //
+        $planteles = Plantel::all();
+
+        return response()->json($planteles);
     }
 
     /**

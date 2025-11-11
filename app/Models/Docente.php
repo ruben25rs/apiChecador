@@ -20,5 +20,6 @@ class Docente extends Model
         'telefono',
         'descriptor',
         'user_id',
+        'plantel_id',
     ];
 }

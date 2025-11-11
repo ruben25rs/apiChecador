@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asistencia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AsistenciaController extends Controller
 {
@@ -36,6 +37,28 @@ class AsistenciaController extends Controller
     public function store(Request $request)
     {
         //
+
+        $request->validate([
+            'tipo' => 'required|in:entrada,salida',
+        ]);
+
+        // Guarda la imagen en storage/app/public/checadas/
+        $path = $request->file('foto')->store('checadas', 'public');
+
+        // Guarda en la base de datos solo la ruta
+        $checada = Asistencia::create([
+            'user_id' => $request->user_id,
+            'tipo' => $request->tipo,
+            'foto_url' => $path,
+            'sincronizado' => false,
+        ]);
+
+        return response()->json([
+            'message' => 'Checada registrada correctamente',
+            'foto_url' => Storage::url($path),
+            'data' => $checada
+        ]);
+    
     }
 
     /**

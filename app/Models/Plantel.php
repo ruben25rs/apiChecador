@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Plantel extends Model
 {
     use HasFactory;
+
+    protected $table = "planteles";
+
+    protected $fillable = [
+        'numPlantel',
+        'nombrePlantel',
+        'clavePlantel',
+        'direccion'
+    ];
 }
