@@ -15,6 +15,7 @@ class CreateAsistenciasTable extends Migration
     {
         Schema::create('asistencias', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique()->nullable();
             $table->string('tipo');
             $table->string('foto_url');
             $table->boolean('sincronizado');
