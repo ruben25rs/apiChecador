@@ -10,24 +10,8 @@ use App\Models\Asistencia;
 
 class SyncToCentral extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'sync:central';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Sincroniza datos locales con el servidor central';
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
     public function handle()
     {
@@ -51,6 +35,8 @@ class SyncToCentral extends Command
                 ];
             });
 
+            $this->info('Payload usuarios: ' . $payload->toJson());
+
             $response = Http::withoutVerifying()->post("$centralUrl/usuarios", [
                 'usuarios' => $payload
             ]);
@@ -58,7 +44,7 @@ class SyncToCentral extends Command
             $this->info('HTTP Status: ' . $response->status());
             $this->info('Response Body: ' . $response->body());
 
-            if ($response->successful()) {
+            if ($response->successful() && $response->json('status') === 'ok') {
                 User::whereIn('id', $usuarios->pluck('id'))->update(['sincronizado' => true]);
                 $this->info("✅ Usuarios sincronizados correctamente.");
             } else {
@@ -71,7 +57,10 @@ class SyncToCentral extends Command
         // =====================================================
         // 2️⃣ DOCENTES
         // =====================================================
-        $docentes = Docente::with('user')->where('sincronizado', false)->get();
+        $docentes = Docente::with('user')
+            ->where('sincronizado', false)
+            ->whereHas('user') // solo los que tengan user asociado
+            ->get();
 
         if ($docentes->count() > 0) {
             $this->info("Enviando {$docentes->count()} docentes...");
@@ -87,10 +76,11 @@ class SyncToCentral extends Command
                     'telefono' => $d->telefono,
                     'descriptor' => $d->descriptor,
                     'plantel_id' => $d->plantel_id,
-                    'sincronizado' => $d->sincronizado,
-                    'user_uuid' => $d->user->uuid ?? null, // 👈 vínculo lógico
+                    'user_uuid' => $d->user->uuid,
                 ];
             });
+
+            $this->info('Payload docentes: ' . $payload->toJson());
 
             $response = Http::withoutVerifying()->post("$centralUrl/docentes", [
                 'docentes' => $payload
@@ -99,7 +89,7 @@ class SyncToCentral extends Command
             $this->info('HTTP Status: ' . $response->status());
             $this->info('Response Body: ' . $response->body());
 
-            if ($response->successful()) {
+            if ($response->successful() && $response->json('status') === 'ok') {
                 Docente::whereIn('id', $docentes->pluck('id'))->update(['sincronizado' => true]);
                 $this->info("✅ Docentes sincronizados correctamente.");
             } else {
@@ -112,7 +102,10 @@ class SyncToCentral extends Command
         // =====================================================
         // 3️⃣ CHECADAS
         // =====================================================
-        $checadas = Asistencia::with('docente')->where('sincronizado', false)->get();
+        $checadas = Asistencia::with('docente')
+            ->where('sincronizado', false)
+            ->whereHas('docente') // solo las que tengan docente asociado
+            ->get();
 
         if ($checadas->count() > 0) {
             $this->info("Enviando {$checadas->count()} checadas...");
@@ -120,13 +113,14 @@ class SyncToCentral extends Command
             $payload = $checadas->map(function ($a) {
                 return [
                     'uuid' => $a->uuid,
-                    'fecha' => $a->fecha,
-                    'hora' => $a->hora,
+                    'fecha_hora' => $a->fecha_hora,
+                    'foto_url' => $a->foto_url,
                     'tipo' => $a->tipo,
-                    'sincronizado' => $a->sincronizado,
-                    'docente_uuid' => $a->docente->uuid ?? null, // 👈 vínculo lógico
+                    'docente_uuid' => $a->docente->uuid,
                 ];
             });
+
+            $this->info('Payload checadas: ' . $payload->toJson());
 
             $response = Http::withoutVerifying()->post("$centralUrl/checadas", [
                 'checadas' => $payload
@@ -135,7 +129,7 @@ class SyncToCentral extends Command
             $this->info('HTTP Status: ' . $response->status());
             $this->info('Response Body: ' . $response->body());
 
-            if ($response->successful()) {
+            if ($response->successful() && $response->json('status') === 'ok') {
                 Asistencia::whereIn('id', $checadas->pluck('id'))->update(['sincronizado' => true]);
                 $this->info("✅ Checadas sincronizadas correctamente.");
             } else {

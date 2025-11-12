@@ -18,6 +18,7 @@ class CreateAsistenciasTable extends Migration
             $table->uuid('uuid')->unique()->nullable();
             $table->string('tipo');
             $table->string('foto_url');
+            $table->timestamp('fecha_hora')->nullable();
             $table->boolean('sincronizado')->default(false);
             $table->unsignedBigInteger('docente_id');
             $table->foreign('docente_id')->references('id')->on('users');

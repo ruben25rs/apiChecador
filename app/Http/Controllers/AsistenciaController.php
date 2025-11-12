@@ -54,6 +54,7 @@ class AsistenciaController extends Controller
             'docente_id' => $docente->id,
             'tipo' => $request->tipo,
             'foto_url' => $path,  
+            'fecha_hora' => now(),  
             'sincronizado' => false,
         ]);
 
