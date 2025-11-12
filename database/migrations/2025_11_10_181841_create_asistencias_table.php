@@ -19,8 +19,8 @@ class CreateAsistenciasTable extends Migration
             $table->string('tipo');
             $table->string('foto_url');
             $table->boolean('sincronizado')->default(false);
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('docente_id');
+            $table->foreign('docente_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

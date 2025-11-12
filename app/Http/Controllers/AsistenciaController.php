@@ -47,7 +47,7 @@ class AsistenciaController extends Controller
 
         // Guarda en la base de datos solo la ruta
         $checada = Asistencia::create([
-            'user_id' => $request->user_id,
+            'docente_id' => $request->user_id,
             'tipo' => $request->tipo,
             'foto_url' => $path,
             'sincronizado' => false,
