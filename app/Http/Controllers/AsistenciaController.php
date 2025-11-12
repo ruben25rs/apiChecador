@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Docente;
 use App\Models\Asistencia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -45,9 +46,12 @@ class AsistenciaController extends Controller
         // Guarda la imagen en storage/app/public/checadas/
         $path = $request->file('foto')->store('checadas', 'public');
 
+        //
+        $docente : Docente::where('email', $request->email)->first();
+
         // Guarda en la base de datos solo la ruta
         $checada = Asistencia::create([
-            'docente_id' => $request->user_id,
+            'docente_id' => $docente->id,
             'tipo' => $request->tipo,
             'foto_url' => $path,  
             'sincronizado' => false,
