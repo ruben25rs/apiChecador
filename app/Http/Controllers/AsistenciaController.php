@@ -47,7 +47,7 @@ class AsistenciaController extends Controller
         $path = $request->file('foto')->store('checadas', 'public');
 
         //
-        $docente : Docente::where('email', $request->email)->first();
+        $docente = Docente::where('email', $request->email)->first();
 
         // Guarda en la base de datos solo la ruta
         $checada = Asistencia::create([
