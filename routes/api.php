@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PlantelController;
 use App\Http\Controllers\DocenteController;
+use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\Api\AuthController;
 /*
 |--------------------------------------------------------------------------
@@ -40,5 +41,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::post('/registro/docente', [DocenteController::class, 'store']);
+Route::post('/registro/asistencias', [AsistenciaController::class, 'store']);
 Route::get('/docente/{id}', [DocenteController::class, 'docenteUser']);
 Route::get('/planteles', [PlantelController::class, 'getPlanteles']);
