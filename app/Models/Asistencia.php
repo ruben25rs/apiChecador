@@ -13,6 +13,7 @@ class Asistencia extends Model
     protected $table = "asistencias";
 
     protected $fillable = [
+        'uuid',
         'tipo',
         'foto_url',
         'sincronizado',

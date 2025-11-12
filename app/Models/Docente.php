@@ -13,6 +13,7 @@ class Docente extends Model
     protected $table = "docentes";
 
     protected $fillable = [
+        'uuid',
         'nombre',
         'apellidop',
         'apellidom',
