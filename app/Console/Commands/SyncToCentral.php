@@ -1,145 +1,99 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Http\Controllers;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Docente;
 use App\Models\Asistencia;
 
-class SyncToCentral extends Command
+class SyncController extends Controller
 {
-    protected $signature = 'sync:central';
-    protected $description = 'Sincroniza datos locales con el servidor central';
-
-    public function handle()
+    /**
+     * Endpoint central para sincronizar todos los datos
+     */
+    
+    // Sincronizar usuarios
+    public function sincronizarUsuarios(Request $request)
     {
-        $centralUrl = 'https://apichecador.carasoftweb.com/api/sincronizar';
+        $usuarios = $request->input('usuarios', []);
+        Log::info('Payload recibido usuarios: ', $usuarios);
 
-        // =====================================================
-        // 1️⃣ USUARIOS
-        // =====================================================
-        $usuarios = User::where('sincronizado', false)->get();
-
-        if ($usuarios->count() > 0) {
-            $this->info("Enviando {$usuarios->count()} usuarios...");
-
-            $payload = $usuarios->map(function ($u) {
-                return [
-                    'uuid' => $u->uuid,
-                    'usuario' => $u->usuario,
-                    'email' => $u->email,
-                    'rol_id' => $u->rol_id,
-                ];
-            });
-
-            $this->info('Payload usuarios: ' . $payload->toJson());
-
-            $response = Http::withoutVerifying()->post("$centralUrl/usuarios", [
-                'usuarios' => $payload
-            ]);
-
-            $this->info('HTTP Status: ' . $response->status());
-            $this->info('Response Body: ' . $response->body());
-
-            if ($response->successful() && $response->json('status') === 'ok') {
-                User::whereIn('id', $usuarios->pluck('id'))->update(['sincronizado' => true]);
-                $this->info("✅ Usuarios sincronizados correctamente.");
-            } else {
-                $this->error("❌ Error al sincronizar usuarios.");
-            }
-        } else {
-            $this->info("No hay usuarios pendientes por sincronizar.");
+        foreach ($usuarios as $data) {
+            User::updateOrCreate(
+                ['uuid' => $data['uuid']],
+                [
+                    'usuario' => $data['usuario'],
+                    'email' => $data['email'],
+                    'rol_id' => $data['rol_id'],
+                    'sincronizado' => true, // ya viene sincronizado
+                ]
+            );
         }
 
-        // =====================================================
-        // 2️⃣ DOCENTES
-        // =====================================================
-        $docentes = Docente::with('user')
-            ->where('sincronizado', false)
-            ->whereHas('user')
-            ->get();
+        return response()->json(['status' => 'ok']);
+    }
 
-        if ($docentes->count() > 0) {
-            $this->info("Enviando {$docentes->count()} docentes...");
+    // Sincronizar docentes
+    public function sincronizarDocentes(Request $request)
+    {
+        $docentes = $request->input('docentes', []);
+        Log::info('Payload recibido docentes: ', $docentes);
 
-            $payload = $docentes->map(function ($d) {
-                return [
-                    'uuid' => $d->uuid,
-                    'nombre' => $d->nombre,
-                    'apellidop' => $d->apellidop,
-                    'apellidom' => $d->apellidom,
-                    'direccion' => $d->direccion,
-                    'email' => $d->email,
-                    'telefono' => $d->telefono,
-                    'descriptor' => $d->descriptor,
-                    'plantel_id' => $d->plantel_id,
-                    'user_uuid' => $d->user->uuid,
-                ];
-            });
-
-            $this->info('Payload docentes: ' . $payload->toJson());
-
-            $response = Http::withoutVerifying()->post("$centralUrl/docentes", [
-                'docentes' => $payload
-            ]);
-
-            $this->info('HTTP Status: ' . $response->status());
-            $this->info('Response Body: ' . $response->body());
-
-            if ($response->successful() && $response->json('status') === 'ok') {
-                Docente::whereIn('id', $docentes->pluck('id'))->update(['sincronizado' => true]);
-                $this->info("✅ Docentes sincronizados correctamente.");
-            } else {
-                $this->error("❌ Error al sincronizar docentes.");
+        foreach ($docentes as $data) {
+            // Buscar el usuario asociado
+            $user = User::where('uuid', $data['user_uuid'])->first();
+            if (!$user) {
+                Log::warning("Usuario no encontrado para docente: " . $data['uuid']);
+                continue; // saltar si no existe usuario
             }
-        } else {
-            $this->info("No hay docentes pendientes por sincronizar.");
+
+            Docente::updateOrCreate(
+                ['uuid' => $data['uuid']],
+                [
+                    'nombre' => $data['nombre'],
+                    'apellidop' => $data['apellidop'],
+                    'apellidom' => $data['apellidom'],
+                    'direccion' => $data['direccion'],
+                    'email' => $data['email'],
+                    'telefono' => $data['telefono'],
+                    'descriptor' => $data['descriptor'] ?? null,
+                    'plantel_id' => $data['plantel_id'],
+                    'user_id' => $user->id,
+                ]
+            );
         }
 
-        // =====================================================
-        // 3️⃣ CHECADAS
-        // =====================================================
-        $checadas = Asistencia::with('docente')
-            ->where('sincronizado', false)
-            ->whereHas('docente')
-            ->get();
+        return response()->json(['status' => 'ok']);
+    }
 
-        if ($checadas->count() > 0) {
-            $this->info("Enviando {$checadas->count()} checadas...");
+    // Sincronizar checadas
+    public function sincronizarChecadas(Request $request)
+    {
+        $checadas = $request->input('checadas', []);
+        Log::info('Payload recibido checadas: ', $checadas);
 
-            $payload = $checadas->map(function ($a) {
-                return [
-                    'uuid' => $a->uuid,
-                    'fecha_hora' => $a->fecha_hora
-                        ? $a->fecha_hora->format('Y-m-d H:i:s')
-                        : now()->format('Y-m-d H:i:s'),
-                    'tipo' => $a->tipo,
-                    'foto_url' => $a->foto_url,
-                    'docente_uuid' => $a->docente->uuid,
-                ];
-            });
-
-            $this->info('Payload checadas: ' . $payload->toJson());
-
-            $response = Http::withoutVerifying()->post("$centralUrl/checadas", [
-                'checadas' => $payload
-            ]);
-
-            $this->info('HTTP Status: ' . $response->status());
-            $this->info('Response Body: ' . $response->body());
-
-            if ($response->successful() && $response->json('status') === 'ok') {
-                Asistencia::whereIn('id', $checadas->pluck('id'))->update(['sincronizado' => true]);
-                $this->info("✅ Checadas sincronizadas correctamente.");
-            } else {
-                $this->error("❌ Error al sincronizar checadas.");
+        foreach ($checadas as $data) {
+            $docente = Docente::where('uuid', $data['docente_uuid'])->first();
+            if (!$docente) {
+                Log::warning("Docente no encontrado para checada: " . $data['uuid']);
+                continue;
             }
-        } else {
-            $this->info("No hay checadas pendientes por sincronizar.");
+
+            Asistencia::updateOrCreate(
+                ['uuid' => $data['uuid']],
+                [
+                    'tipo' => $data['tipo'],
+                    'foto_url' => $data['foto_url'] ?? null,
+                    'fecha_hora' => $data['fecha_hora'] ?? now(),
+                    'docente_id' => $docente->id,
+                    'sincronizado' => true,
+                ]
+            );
         }
 
-        return Command::SUCCESS;
+        return response()->json(['status' => 'ok']);
     }
 }
