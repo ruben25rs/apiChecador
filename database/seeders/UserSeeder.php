@@ -21,7 +21,6 @@ class UserSeeder extends Seeder
             'usuario' => 'root',
             'email' => 'rubenrs.251@gmail.com',
             'password' => Hash::make('root'),
-            'sincronizado' => false,
             'rol_id' => 1,
         ]);
     }

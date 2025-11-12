@@ -18,7 +18,7 @@ class CreateAsistenciasTable extends Migration
             $table->uuid('uuid')->unique()->nullable();
             $table->string('tipo');
             $table->string('foto_url');
-            $table->boolean('sincronizado');
+            $table->boolean('sincronizado')->default(false);
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();

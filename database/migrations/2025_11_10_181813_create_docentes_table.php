@@ -24,7 +24,7 @@ class CreateDocentesTable extends Migration
             $table->string('telefono')->nullable();
             $table->longText('descriptor')->nullable();
             $table->unsignedBigInteger('user_id');
-            $table->boolean('sincronizado');
+            $table->boolean('sincronizado')->default(false);
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedBigInteger('plantel_id');
             $table->foreign('plantel_id')->references('id')->on('planteles');

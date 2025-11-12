@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('email', 120)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->boolean('sincronizado');
+            $table->boolean('sincronizado')->default(false);
             $table->unsignedBigInteger('rol_id');
             $table->foreign('rol_id')->references('id')->on('roles');
             $table->rememberToken();
