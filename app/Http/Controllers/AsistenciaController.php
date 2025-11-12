@@ -49,7 +49,7 @@ class AsistenciaController extends Controller
         $checada = Asistencia::create([
             'docente_id' => $request->user_id,
             'tipo' => $request->tipo,
-            'foto_url' => $path,
+            'foto_url' => $path,  
             'sincronizado' => false,
         ]);
 
