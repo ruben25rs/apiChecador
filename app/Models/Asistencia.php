@@ -16,7 +16,7 @@ class Asistencia extends Model
         'tipo',
         'foto_url',
         'sincronizado',
-        'user_id',
+        'docente_id',
     ];
 
     public function docente()
