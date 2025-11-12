@@ -31,7 +31,6 @@ class SyncToCentral extends Command
                     'usuario' => $u->usuario,
                     'email' => $u->email,
                     'rol_id' => $u->rol_id,
-                    'sincronizado' => $u->sincronizado,
                 ];
             });
 
@@ -59,7 +58,7 @@ class SyncToCentral extends Command
         // =====================================================
         $docentes = Docente::with('user')
             ->where('sincronizado', false)
-            ->whereHas('user') // solo los que tengan user asociado
+            ->whereHas('user')
             ->get();
 
         if ($docentes->count() > 0) {
@@ -104,7 +103,7 @@ class SyncToCentral extends Command
         // =====================================================
         $checadas = Asistencia::with('docente')
             ->where('sincronizado', false)
-            ->whereHas('docente') // solo las que tengan docente asociado
+            ->whereHas('docente')
             ->get();
 
         if ($checadas->count() > 0) {
@@ -113,9 +112,11 @@ class SyncToCentral extends Command
             $payload = $checadas->map(function ($a) {
                 return [
                     'uuid' => $a->uuid,
-                    'fecha_hora' => $a->fecha_hora,
-                    'foto_url' => $a->foto_url,
+                    'fecha_hora' => $a->fecha_hora
+                        ? $a->fecha_hora->format('Y-m-d H:i:s')
+                        : now()->format('Y-m-d H:i:s'),
                     'tipo' => $a->tipo,
+                    'foto_url' => $a->foto_url,
                     'docente_uuid' => $a->docente->uuid,
                 ];
             });

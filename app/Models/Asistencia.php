@@ -17,12 +17,17 @@ class Asistencia extends Model
         'foto_url',
         'sincronizado',
         'docente_id',
+        'fecha_hora'
     ];
 
     public function docente()
     {
         return $this->belongsTo(Docente::class);
     }
+
+    protected $casts = [
+        'fecha_hora' => 'datetime',
+    ];
 
     protected static function boot()
     {
