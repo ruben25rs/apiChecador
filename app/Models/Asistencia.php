@@ -19,6 +19,11 @@ class Asistencia extends Model
         'user_id',
     ];
 
+    public function docente()
+    {
+        return $this->belongsTo(Docente::class);
+    }
+
     protected static function boot()
     {
         parent::boot();
