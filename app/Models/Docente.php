@@ -25,6 +25,11 @@ class Docente extends Model
         'plantel_id',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     protected static function boot()
     {
         parent::boot();
