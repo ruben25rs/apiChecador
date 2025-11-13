@@ -31,6 +31,12 @@ class Docente extends Model
         return $this->belongsTo(User::class);
     }
 
+    // Relación con Plantel
+    public function plantel()
+    {
+        return $this->belongsTo(Plantel::class, 'plantel_id'); // 'plantel_id' es la FK en docentes
+    }
+
     protected static function boot()
     {
         parent::boot();
