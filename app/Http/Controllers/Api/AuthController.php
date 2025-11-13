@@ -46,12 +46,12 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         // Obtener docente relacionado con solo los campos necesarios
-        $docente = $user->docente()->select('id', 'nombre', 'apellido', 'plantel_id')->first();
+        $docente = $user->docente()->select('id', 'nombre', 'apellidop', 'apellidom', 'plantel_id')->first();
 
         // Obtener plantel del docente con solo los campos necesarios
         $plantel = null;
         if ($docente && $docente->plantel_id) {
-            $plantel = $docente->plantel()->select('id', 'nombrePlantel', 'numPlantel')->first();
+            $plantel = $docente->plantel()->select('id', 'nombrePlantel', 'clavePlantel')->first();
         }
 
         // Devolver solo los campos de user
@@ -61,7 +61,7 @@ class AuthController extends Controller
             'rol_id' => $user->rol_id,
         ];
 
-        return response()->json(['user' => $userData, 'token' => $token, 'docente' => $docente,'plantel' => $plantel]);
+        return response()->json(['user' => $userData, 'token' => $token, 'docente' => $docente, 'plantel' => $plantel]);
     }
 
     public function logout(Request $request)
