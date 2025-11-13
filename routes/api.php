@@ -40,8 +40,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::put('/actualizar/docente', [DocenteController::class, 'update']);
+Route::post('/actualizar/docente', [DocenteController::class, 'updateDocente']);   
 Route::post('/registro/docente', [DocenteController::class, 'store']);
 Route::post('/registro/asistencias', [AsistenciaController::class, 'store']);
 Route::get('/docente/{id}', [DocenteController::class, 'docenteUser']);
 Route::get('/planteles', [PlantelController::class, 'getPlanteles']);
+

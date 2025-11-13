@@ -101,9 +101,19 @@ class DocenteController extends Controller
      * @param  \App\Models\Docente  $docente
      * @return \Illuminate\Http\Response
      */
-    public function edit(Docente $docente)
+    public function updateDocente(Request $docente)
     {
         //
+        $docente = Docente::find($request->plantel_id);  
+
+        if (!$docente) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+
+        $docente->descriptor = json_encode($request->descriptor);
+        $docente->save();
+
+        return response()->json(['message' => 'Descriptor actualizado correctamente']);
     }
 
     /**
