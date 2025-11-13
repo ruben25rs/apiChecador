@@ -116,7 +116,7 @@ class DocenteController extends Controller
     public function update(Request $request)
     {
 
-        $docente = Docente::find($request->plantel_id);
+        $docente = Docente::find($request->plantel_id);  
 
         if (!$docente) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
