@@ -61,7 +61,18 @@ class DocenteController extends Controller
             'password' => Hash::make($request->registros['password']),
             'rol_id' => $request->registros['rol_id'],
         ]);
-        
+
+        // Obtener descriptor
+        $descriptor = $request->registros['descriptor'];
+
+        // Si viene vacío, null o una cadena vacía de JSON, dejarlo en blanco
+        if (empty($descriptor) || $descriptor === 'null' || $descriptor === '[]') {
+            $descriptor = '';
+        } else {
+            // Si no está vacío, asegurarnos que sea JSON válido
+            $descriptor = json_encode($descriptor);
+        }
+
         $docente = Docente::create([
             'nombre'=> $request->registros['nombre'],
             'apellidop'=> 'rub',
@@ -69,7 +80,7 @@ class DocenteController extends Controller
             'direccion'=> 'huaya',
             'email'=> $request->registros['email'],
             'telefono'=> '00000',
-            'descriptor'=>json_encode($request->registros['descriptor']),
+            'descriptor'=>$descriptor,
             'user_id'=>$user->id,
             'plantel_id'=>$request->registros['plantel_id'],
         ]);
