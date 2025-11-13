@@ -101,7 +101,7 @@ class DocenteController extends Controller
      * @param  \App\Models\Docente  $docente
      * @return \Illuminate\Http\Response
      */
-    public function updateDocente(Request $docente)
+    public function updateDocente(Request $request)
     {
         //
         $docente = Docente::find($request->plantel_id);  
