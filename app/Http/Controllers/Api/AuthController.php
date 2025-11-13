@@ -45,10 +45,23 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        $docente = $user->docente;
-        $rol = Rol::find($user->rol_id)->rol;
+        // Obtener docente relacionado con solo los campos necesarios
+        $docente = $user->docente()->select('id', 'nombre', 'apellido', 'plantel_id')->first();
 
-        return response()->json(['user' => $user, 'token' => $token, 'docente_id' => $docente,'rol' => $rol]);
+        // Obtener plantel del docente con solo los campos necesarios
+        $plantel = null;
+        if ($docente && $docente->plantel_id) {
+            $plantel = $docente->plantel()->select('id', 'nombrePlantel', 'numPlantel')->first();
+        }
+
+        // Devolver solo los campos de user
+        $userData = [
+            'email' => $user->email,
+            'usuario' => $user->usuario,
+            'rol_id' => $user->rol_id,
+        ];
+
+        return response()->json(['user' => $userData, 'token' => $token, 'docente' => $docente,'plantel' => $plantel]);
     }
 
     public function logout(Request $request)

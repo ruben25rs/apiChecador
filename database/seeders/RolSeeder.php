@@ -20,6 +20,10 @@ class RolSeeder extends Seeder
         ]);
 
         DB::table('roles')->insert([
+            'rol' => 'Director'
+        ]);
+
+        DB::table('roles')->insert([
             'rol' => 'Docente'
         ]);
 
