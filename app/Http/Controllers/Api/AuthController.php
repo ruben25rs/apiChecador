@@ -46,7 +46,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         // Obtener docente relacionado con solo los campos necesarios
-        $docente = $user->docente()->select('id', 'nombre', 'apellidop', 'apellidom', 'plantel_id')->first();
+        $docente = $user->docente()->select('id', 'nombre', 'apellidop', 'apellidom', 'plantel_id', 'descriptor')->first();
 
         // Obtener plantel del docente con solo los campos necesarios
         $plantel = null;
