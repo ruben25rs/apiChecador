@@ -42,7 +42,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/actualizar/docente', [DocenteController::class, 'updateDocente']);   
 Route::post('/registro/docente', [DocenteController::class, 'store']);
-Route::post('/registro/asistencias', [AsistenciaController::class, 'store']);
 Route::get('/docente/{id}', [DocenteController::class, 'docenteUser']);
+Route::get('/docentes/{plantel_id}', [DocenteController::class, 'index']);
+
+Route::post('/registro/asistencias', [AsistenciaController::class, 'store']);
 Route::get('/planteles', [PlantelController::class, 'getPlanteles']);
 
