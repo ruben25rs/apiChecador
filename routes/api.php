@@ -48,3 +48,4 @@ Route::get('/docentes/{plantel_id}', [DocenteController::class, 'index']);
 Route::post('/registro/asistencias', [AsistenciaController::class, 'store']);
 Route::get('/planteles', [PlantelController::class, 'getPlanteles']);
 
+//
